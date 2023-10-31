@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include "components/Camera.h"
+#include "components/Sensors.h"
 #include "models/CreateMeasurementRequest.h"
 #include "shared/HttpHelper.h"
 
@@ -11,16 +12,24 @@ class MonitoringRoutine {
   static TaskHandle_t _monitoringTaskHandle;
 
   static void _monitoringTask(void* arg) {
+    log_d("Starting monitoring task");
+
     for (;;) {
       if (WiFi.isConnected()) {
+        auto sensorValues = Sensors::getData();
+
+        log_i("Temp: %f | Humidity: %f", sensorValues.temperature, sensorValues.humidity);
+
         camera_fb_t* frameBuffer = Camera::capture();
 
         auto request = CreateMeasurementRequest();
         request.fileContents = frameBuffer->buf;
         request.fileSize = frameBuffer->len;
         request.deviceId = DEVICE_ID;
+        request.temperature = string_format("%f", sensorValues.temperature);
+        request.humidity = string_format("%f", sensorValues.humidity);
 
-        HttpHelper::postFile<CreateMeasurementRequest, 30000>("/api/v1/fire", request);
+        HttpHelper::postFile<CreateMeasurementRequest>("/api/v1/fire", request);
 
         Camera::clear();
       } else {
@@ -32,7 +41,10 @@ class MonitoringRoutine {
   }
 
   static void _startMonitoringTask() {
-    xTaskCreatePinnedToCore(_monitoringTask, "monitoring-task", 50000, NULL, 1, &_monitoringTaskHandle, tskNO_AFFINITY);
+    auto result = xTaskCreatePinnedToCore(
+        _monitoringTask, "monitoring-task", 8192, NULL, 1, &_monitoringTaskHandle, tskNO_AFFINITY);
+
+    log_d("result: %d", result);
   }
 
  public:

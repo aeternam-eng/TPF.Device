@@ -11,25 +11,33 @@ void setup() {
   log_i("Starting STRONZO TPF DEVICE - %s", GIT_REV);
 
   pinMode(GPIO_NUM_4, OUTPUT);
+  pinMode(GPIO_NUM_14, INPUT);
+  pinMode(GPIO_NUM_15, INPUT);
   digitalWrite(GPIO_NUM_4, LOW);
 
   WiFi.setSleep(false);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP("STRONZO-TPF", "12345678");
 
-  WiFi.begin("WIFI_SSID", "WIFI_PASSWORD");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   WiFi.waitForConnectResult();
 
   HttpHelper::init();
   HttpHelper::setBaseUrl(TPF_API_URL);
 
+  Sensors::init();
   Camera::init();
+
   TPFServer::init();
 
   MonitoringRoutine::init();
 }
 
 void loop() {
+  // auto sensorValues = Sensors::getData();
+
+  // log_i("Temp: %f | Humidity: %f", sensorValues.temperature, sensorValues.humidity);
+
   vTaskDelay(10000);
 
   log_d("Heap: %d", esp_get_free_heap_size());

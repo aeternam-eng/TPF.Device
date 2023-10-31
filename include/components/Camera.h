@@ -33,7 +33,6 @@ class Camera {
     cameraConfig.pixel_format = PIXFORMAT_JPEG;  // for streaming
     // cameraConfig.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
     cameraConfig.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
-    cameraConfig.fb_location = CAMERA_FB_IN_PSRAM;
     cameraConfig.jpeg_quality = 12;
     cameraConfig.fb_count = 1;
 
@@ -44,12 +43,11 @@ class Camera {
         log_d("PSRAM found, using higher quality for JPG");
 
         cameraConfig.jpeg_quality = 16;
-        cameraConfig.fb_count = 8;
+        cameraConfig.fb_count = 4;
         cameraConfig.grab_mode = CAMERA_GRAB_LATEST;
       } else {
         // Limit the frame size when PSRAM is not available
         cameraConfig.frame_size = FRAMESIZE_SVGA;
-        cameraConfig.fb_location = CAMERA_FB_IN_DRAM;
       }
     } else {
       // Best option for face detection/recognition

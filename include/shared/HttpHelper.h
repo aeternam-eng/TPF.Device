@@ -20,16 +20,24 @@ class HttpHelper {
 
   static void setUserAgent(const char* newUserAgent) { _httpClient.setUserAgent(newUserAgent); }
 
-  template <typename T, const size_t bufferSize>
+  template <typename T>
   static void postFile(const char* requestUri, T request) {
     _httpClient.begin(_wifiClient, _baseUrl, TPF_API_PORT, requestUri, false);
     _httpClient.addHeader(
-        "Content-Type", "multipart/form-data; boundary=--------------------------306409604379268013737648");
+        "Content-Type", "multipart/form-data; boundary=--------------------------321841453207809969838898");
 
-    uint8_t buffer[bufferSize];
-    int bufi = convertToFormData(buffer, request);
+    std::vector<uint8_t> buffer = convertToFormData(request);
 
-    int err = _httpClient.POST(buffer, bufi);
+    std::vector<char> charBuffer = std::vector<char>(buffer.begin(), buffer.end());
+    std::string bufferString = std::string(charBuffer.begin(), charBuffer.end());
+
+    log_i("FormData: %d bytes;", bufferString.size());
+    for (int c = 0; c < bufferString.size(); c++) {
+      printf("%c", bufferString[c]);
+    }
+    log_i("End FormData");
+
+    int err = _httpClient.POST(buffer.data(), buffer.size());
 
     if (err > 0) {
       log_d("Succesfully sent file POST to %s. Response: %s", requestUri, _httpClient.getString().c_str());

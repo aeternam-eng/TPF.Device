@@ -7,29 +7,35 @@ class CreateMeasurementRequest {
   uint8_t* fileContents;
   size_t fileSize;
   std::string deviceId;
+  std::string temperature;
+  std::string humidity;
 };
 
-size_t convertToFormData(uint8_t* buffer, const CreateMeasurementRequest& request) {
-  auto content = string_format(
+std::vector<uint8_t> convertToFormData(const CreateMeasurementRequest& request) {
+  auto imageContent = string_format(
       "%s\r\n%s\r\n%s\r\n\r\n",
       Constants::FormDataBoundary,
       string_format(Constants::ImageContentDisposition, "request").c_str(),
       Constants::ImageContentType);
-  auto secondPart = string_format(
-      "\r\n%s\r\n%s\r\n\r\n%s\r\n%s\r\n",
+
+  auto otherFields = string_format(
+      "\r\n%s\r\n%s\r\n\r\n%s\r\n%s\r\n%s\r\n\r\n%s\r\n%s\r\n%s\r\n\r\n%s\r\n%s\r\n",
       Constants::FormDataBoundary,
       string_format(Constants::TextContentDisposition, "deviceId").c_str(),
       request.deviceId.c_str(),
+      Constants::FormDataBoundary,
+      string_format(Constants::TextContentDisposition, "temperature").c_str(),
+      request.temperature.c_str(),
+      Constants::FormDataBoundary,
+      string_format(Constants::TextContentDisposition, "humidity").c_str(),
+      request.humidity.c_str(),
       Constants::FormDataBoundaryClose);
 
-  memcpy((void*)&buffer[0], (void*)content.c_str(), content.size());
-  int size = content.size();
+  auto formData = std::vector<uint8_t>(std::begin(imageContent), std::end(imageContent));
+  formData.insert(formData.end(), request.fileContents, request.fileContents + request.fileSize);
+  formData.insert(formData.end(), otherFields.begin(), otherFields.end());
+  // std::copy(request.fileContents, request.fileContents + request.fileSize, std::back_inserter(formData));
+  // std::copy(std::begin(otherFields), std::end(otherFields), std::back_inserter(formData));
 
-  memcpy((void*)&buffer[size], (void*)request.fileContents, request.fileSize);
-  size += request.fileSize;
-
-  memcpy((void*)&buffer[size], (void*)secondPart.c_str(), secondPart.size());
-  size += secondPart.size();
-
-  return size;
+  return formData;
 }
