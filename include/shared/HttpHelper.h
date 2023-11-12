@@ -28,14 +28,14 @@ class HttpHelper {
 
     std::vector<uint8_t> buffer = convertToFormData(request);
 
-    std::vector<char> charBuffer = std::vector<char>(buffer.begin(), buffer.end());
-    std::string bufferString = std::string(charBuffer.begin(), charBuffer.end());
+    // std::vector<char> charBuffer = std::vector<char>(buffer.begin(), buffer.end());
+    // std::string bufferString = std::string(charBuffer.begin(), charBuffer.end());
 
-    log_i("FormData: %d bytes;", bufferString.size());
-    for (int c = 0; c < bufferString.size(); c++) {
-      printf("%c", bufferString[c]);
-    }
-    log_i("End FormData");
+    // log_i("FormData: %d bytes;", bufferString.size());
+    // for (int c = 0; c < bufferString.size(); c++) {
+    //   printf("%c", bufferString[c]);
+    // }
+    // log_i("End FormData");
 
     int err = _httpClient.POST(buffer.data(), buffer.size());
 

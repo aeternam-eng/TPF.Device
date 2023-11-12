@@ -34,11 +34,6 @@ void setup() {
 }
 
 void loop() {
-  // auto sensorValues = Sensors::getData();
-
-  // log_i("Temp: %f | Humidity: %f", sensorValues.temperature, sensorValues.humidity);
-
   vTaskDelay(10000);
-
   log_d("Heap: %d", esp_get_free_heap_size());
 }

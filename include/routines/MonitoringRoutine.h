@@ -42,7 +42,7 @@ class MonitoringRoutine {
 
   static void _startMonitoringTask() {
     auto result = xTaskCreatePinnedToCore(
-        _monitoringTask, "monitoring-task", 8192, NULL, 1, &_monitoringTaskHandle, tskNO_AFFINITY);
+        _monitoringTask, "monitoring-task", 16767, NULL, 1, &_monitoringTaskHandle, tskNO_AFFINITY);
 
     log_d("result: %d", result);
   }
